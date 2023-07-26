@@ -1,15 +1,16 @@
 import { KonvaEventObject } from 'konva/lib/Node'
 import { FC, useRef } from 'react'
-import { Stage, Layer, Text, Line, Circle, Arc, Group } from 'react-konva'
+import { Stage, Layer, Text, Line, Circle, Arc, Group, Rect } from 'react-konva'
 
 interface IProps {
     boxWidth: number
     boxHeight: number
+    showIndicators?: boolean
 }
 
 const ITEM_COUNT = 7
 
-const KonvaTest: FC<IProps> = ({ boxHeight, boxWidth }) => {
+const KonvaTest: FC<IProps> = ({ boxHeight, boxWidth, showIndicators }) => {
     const middle = {
         x: boxWidth / 2,
         y: boxHeight / 2,
@@ -35,7 +36,7 @@ const KonvaTest: FC<IProps> = ({ boxHeight, boxWidth }) => {
 
     const handleClick = (evt: KonvaEventObject<MouseEvent>) => {
         evt.currentTarget.to({
-            rotation: evt.currentTarget.rotation() + 360 / ITEM_COUNT,
+            rotation: evt.currentTarget.rotation() - 360 / ITEM_COUNT,
             duration: 1,
         })
     }
@@ -61,17 +62,18 @@ const KonvaTest: FC<IProps> = ({ boxHeight, boxWidth }) => {
                         }
                     }}
                 >
-                    <Circle x={0} y={0} radius={10} fill="red" />
                     {new Array(ITEM_COUNT).fill(0).map((_, i) => {
                         let angle = 360 / ITEM_COUNT
-
+                        const minWidth =
+                            2 * INNER_CIRCLE_RADIUS * Math.PI * (angle / 360)
                         return (
                             <Group
                                 key={i}
                                 x={0}
                                 y={0}
                                 // -90 to start at the bottom
-                                rotation={90 + angle * i}
+                                rotation={-90 - angle / 2 + angle * i}
+                                // rotation={angle * i}
                             >
                                 <Arc
                                     innerRadius={INNER_CIRCLE_RADIUS}
@@ -86,82 +88,50 @@ const KonvaTest: FC<IProps> = ({ boxHeight, boxWidth }) => {
                                     opacity={0.8}
                                 />
                                 {/* Align the text with the arc */}
+
                                 <Text
                                     text={`Text ${i}`}
-                                    x={INNER_CIRCLE_RADIUS + RING_WIDTH / 2}
-                                    y={RING_WIDTH / 2}
-                                    // x={INNER_CIRCLE_RADIUS + RING_WIDTH / 2}
-                                    // y={RING_WIDTH}
-                                    // y={Math.sin(angle / 2) * RING_WIDTH}
-                                    rotation={90 + angle / 2}
-                                    fill="black"
-                                    fontSize={30}
+                                    y={minWidth / 2 - 8}
+                                    x={INNER_CIRCLE_RADIUS + RING_WIDTH}
+                                    height={minWidth}
+                                    width={RING_WIDTH}
+                                    stroke={'black'}
+                                    fillEnabled={true}
                                     align="center"
+                                    rotation={angle / 2 + 90}
+                                    fill="black"
+                                    fontSize={BOX_SQUARE_SIZE / 24}
                                     verticalAlign="middle"
                                 />
                             </Group>
                         )
                     })}
-
-                    {/* {new Array(4).fill(0).map((_, i) => {
-                        let angle = (360 / 4) * i
-                        let center = {
-                            // x: middle.x + Math.cos(angle) * INNER_CIRCLE_RADIUS,
-                            // y: middle.y + Math.sin(angle) * INNER_CIRCLE_RADIUS,
-                            x: middle.x,
-                            y: middle.y,
-                        }
-                        let innerX = center.x - INNER_CIRCLE_RADIUS
-                        let innerY = center.y - INNER_CIRCLE_RADIUS
-                        let outerX = center.x - OUTER_CIRCLE_RADIUS
-                        let outerY = center.y - OUTER_CIRCLE_RADIUS
-                        // let y = center.y + Math.sin(angle) * 100
-                        let trapezoidHeight =
-                            OUTER_CIRCLE_RADIUS - INNER_CIRCLE_RADIUS
-
-                        // let x = Math.cos(angle) * INNER_CIRCLE_RADIUS
-                        // let y = Math.sin(angle) * INNER_CIRCLE_RADIUS
-
-                        return (
-                            <Line
-                                x={innerX}
-                                y={0}
-                                points={[outerX, outerY, 150, 0, 200, 100, 0, 100]}
-                                tension={0.1}
-                                rotationDeg={angle}
-                                closed
-                                stroke="black"
-                                fillLinearGradientStartPoint={{
-                                    x: -50,
-                                    y: -50,
-                                }}
-                                fillLinearGradientEndPoint={{ x: 50, y: 50 }}
-                                fillLinearGradientColorStops={[
-                                    0,
-                                    'red',
-                                    1,
-                                    'yellow',
-                                ]}
-                            />
-                        )
-                    })} */}
                 </Group>
             </Layer>
 
-            <Layer>
-                <Line
-                    x={0}
-                    y={0}
-                    points={[middle.x, 0, middle.x, boxHeight]}
-                    stroke="black"
-                />
-                <Line
-                    x={0}
-                    y={0}
-                    points={[0, middle.y, boxWidth, middle.y]}
-                    stroke="black"
-                />
-            </Layer>
+            {showIndicators && (
+                <Layer
+                    height={boxHeight}
+                    width={boxWidth}
+                    x={middle.x}
+                    y={middle.y}
+                >
+                    <Circle x={0} y={0} radius={10} fill="red" />
+
+                    <Line
+                        x={0}
+                        y={0}
+                        points={[0, -boxHeight / 2, 0, boxHeight / 2]}
+                        stroke="black"
+                    />
+                    <Line
+                        x={0}
+                        y={0}
+                        points={[boxWidth / 2, 0, -boxWidth / 2, 0]}
+                        stroke="black"
+                    />
+                </Layer>
+            )}
         </Stage>
     )
 }
