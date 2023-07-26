@@ -7,9 +7,6 @@ interface IProps {
     boxHeight: number
 }
 
-const INNER_CIRCLE_RADIUS = 400
-const OUTER_CIRCLE_RADIUS = 600
-const RING_WIDTH = OUTER_CIRCLE_RADIUS - INNER_CIRCLE_RADIUS
 const ITEM_COUNT = 7
 
 const KonvaTest: FC<IProps> = ({ boxHeight, boxWidth }) => {
@@ -17,6 +14,13 @@ const KonvaTest: FC<IProps> = ({ boxHeight, boxWidth }) => {
         x: boxWidth / 2,
         y: boxHeight / 2,
     }
+
+    const BOX_SQUARE_SIZE = Math.min(boxHeight, boxWidth)
+    const PADDING = BOX_SQUARE_SIZE / 10
+    const RING_WIDTH = PADDING * 2
+
+    const OUTER_CIRCLE_RADIUS = BOX_SQUARE_SIZE / 2 - PADDING
+    const INNER_CIRCLE_RADIUS = BOX_SQUARE_SIZE / 2 - PADDING - RING_WIDTH
 
     const colors = [
         '#9BABB8',
@@ -66,7 +70,8 @@ const KonvaTest: FC<IProps> = ({ boxHeight, boxWidth }) => {
                                 key={i}
                                 x={0}
                                 y={0}
-                                rotation={-90 + angle * i}
+                                // -90 to start at the bottom
+                                rotation={90 + angle * i}
                             >
                                 <Arc
                                     innerRadius={INNER_CIRCLE_RADIUS}
@@ -76,18 +81,19 @@ const KonvaTest: FC<IProps> = ({ boxHeight, boxWidth }) => {
                                     rotation={0}
                                     angle={angle}
                                     stroke={'black'}
-                                    strokeWidth={9}
+                                    strokeWidth={8}
                                     fill={colors[i]}
-                                    // opacity={0.8}
-                                    lineJoin="round"
+                                    opacity={0.8}
                                 />
                                 {/* Align the text with the arc */}
                                 <Text
                                     text={`Text ${i}`}
                                     x={INNER_CIRCLE_RADIUS + RING_WIDTH / 2}
-                                    y={RING_WIDTH}
+                                    y={RING_WIDTH / 2}
+                                    // x={INNER_CIRCLE_RADIUS + RING_WIDTH / 2}
+                                    // y={RING_WIDTH}
                                     // y={Math.sin(angle / 2) * RING_WIDTH}
-                                    rotation={angle / 2 + 90}
+                                    rotation={90 + angle / 2}
                                     fill="black"
                                     fontSize={30}
                                     align="center"
